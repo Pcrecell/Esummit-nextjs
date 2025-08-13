@@ -3,14 +3,13 @@
 import React, { useState, useEffect } from "react";
 // import DashBoardCard from "./DashBoardCard";
 import MapComponent from "./MapComponent";
-// import { authAPI } from "../../services/api";
+import { authAPI } from "../../../lib/services/api";
 import DashBoardCard from "../../../../public/images/esummit/dashboard/Dashboard Card.svg";
 import QuestionMark from "../../../../public/images/esummit/dashboard/Question-Mark.svg";
 import PaymentStart from "./paymentStart";
 import PaymentEnd from "./paymentEnd";
 import Particles from './Particles';
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 
 const EsummitDashBoard = () => {
   const [userData, setUserData] = useState(null);
@@ -22,17 +21,12 @@ const EsummitDashBoard = () => {
   const [registeredEventId, setRegisteredEventId] = useState(null);
   const qrCode = "https://ik.imagekit.io/fhervghik/E-Cell%20Website/Group%2013.png";
 
-const router = useRouter();
-  useEffect(() => {
-    const isAuthenticated = false;
-    if (!isAuthenticated) {
-      window.location.replace("/login");
+    const handleEventClick = (eventId) => {
+    if (paymentDone) {
+      setSelectedEventId(eventId);
+      setShowConfirmationPopup(true);
     }
-  }, [router]);
-  const handleEventClick = (eventId) => {
-    setSelectedEventId(eventId);
-    setShowConfirmationPopup(true);
-  }; 
+  };
 
   // Handle payment action from PaymentStart popup
   const handlePaymentFromPopup = () => {
@@ -54,30 +48,31 @@ const router = useRouter();
     setShowConfirmationPopup(false);
   };
 
-  // useEffect(() => {
-  //   let mounted = true;
-  //   (async () => {
-  //     try {
-  //       const userResponse = await authAPI.verifyToken();
-  //       if (mounted && userResponse && userResponse.user) {
-  //         setUserData(userResponse.user);
-  //       }
-  //     } catch (err) {
-  //       // handle error
-  //     } finally {
-  //       if (mounted) setLoading(false);
-  //     }
-  //   })();
-  //   return () => { mounted = false; };
-  // }, []);
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const userResponse = await authAPI.verifyToken();
+        if (mounted && userResponse && userResponse.user) {
+          console.log("User data fetched:", userResponse.user);
+          setUserData(userResponse.user);
+        }
+      } catch (err) {
+        throw err;
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
 
-  // if (loading) {
-  //   return (
-  //     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-black to-green-900 text-white text-2xl font-bold tracking-widest animate-pulse">
-  //       Loading...
-  //     </div>
-  //   );
-  // }
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-black to-green-900 text-white text-2xl font-bold tracking-widest animate-pulse">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -121,7 +116,7 @@ const router = useRouter();
               color: '#FFFFFF', 
               WebkitTextStroke: '2px #FFFFFF',
               paintOrder: 'stroke fill'
-            }}>User</h1>
+            }}>{userData.firstname}</h1>
           </div>
         </div>
         <div
